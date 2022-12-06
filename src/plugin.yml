@@ -1,0 +1,13 @@
+name: NeoItemUtils
+main: me.neoblade298.neoitemutils.ItemUtils
+author: [Neoblade298]
+depend: [MythicMobs]
+version: 1.0
+api-version: 1.16
+commands:
+   nitem:
+      description: Base command
+      usage: /nitem
+   rename:
+      description: Base command
+      usage: /rename
