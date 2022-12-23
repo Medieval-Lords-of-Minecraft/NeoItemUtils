@@ -2,12 +2,14 @@ package me.neoblade298.neoitemutils;
 
 import java.util.ArrayList;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import de.tr7zw.nbtapi.NBTItem;
@@ -34,6 +36,7 @@ public class CmdItems implements CommandExecutor{
 			}
 			
 			if (args.length == 0) {
+				p.sendMessage("§c/nitem fix [player]");
 				p.sendMessage("§c/nitem lore set/add/rem/get");
 				p.sendMessage("§c/nitem name set/get");
 				p.sendMessage("§c/nitem model set/get");
@@ -213,7 +216,56 @@ public class CmdItems implements CommandExecutor{
 					}
 				}
 			}
+			else if (args[0].equalsIgnoreCase("fix")) {
+				if (args.length == 1) {
+					if (fix(p, sender)) {
+						p.sendMessage("§4[§c§lMLMC§4] §7Successfully repaired your item!");
+					}
+					else {
+						p.sendMessage("§4[§c§lMLMC§4] §cFailed to repair your item! Are you sure it can be repaired?");
+					}
+				}
+				else {
+					p = Bukkit.getPlayer(args[1]);
+					if (fix(p, sender)) {
+						p.sendMessage("§4[§c§lMLMC§4] §7Successfully repaired your item!");
+						sender.sendMessage("§4[§c§lMLMC§4] §7Successfully repaired item for " + p.getName());
+					}
+					else {
+						p.sendMessage("§4[§c§lMLMC§4] §cFailed to repair your item! Are you sure it can be repaired?");
+						sender.sendMessage("§4[§c§lMLMC§4] §cFailed to repair item for " + p.getName());
+					}
+				}
+			}
 		}
+		// Console
+		else {
+			if (args[0].equalsIgnoreCase("fix")) {
+				Player p = Bukkit.getPlayer(args[1]);
+				if (fix(p, sender)) {
+					p.sendMessage("§4[§c§lMLMC§4] §7Successfully repaired your item!");
+					Bukkit.getLogger().info("[NeoItemUtils] Successfully repaired item for " + p.getName());
+				}
+				else {
+					p.sendMessage("§4[§c§lMLMC§4] §cFailed to repair your item! Are you sure it can be repaired?");
+					Bukkit.getLogger().info("[NeoItemUtils] Failed to repair item for " + p.getName());
+				}
+			}
+		}
+		return true;
+	}
+	
+	private boolean fix(Player p, CommandSender s) {
+		ItemStack item = p.getInventory().getItemInMainHand();
+		if (!item.hasItemMeta()) return false;
+		ItemMeta meta = item.getItemMeta();
+		if (meta.isUnbreakable()) return false;
+		if (item.getType().getMaxDurability() == 0) return false;
+		
+		if ((!meta.isUnbreakable()) && (item.getType().getMaxDurability() > 0)) {
+			((Damageable) meta).setDamage(0);
+		}
+		item.setItemMeta(meta);
 		return true;
 	}
 }
